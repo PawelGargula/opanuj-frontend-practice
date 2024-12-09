@@ -1,0 +1,12 @@
+node_modules/
+/test-results/
+.env
+
+*-recording/
+
+node_modules/
+.env
+*-recording/
+**/playwright/
+
+dist/
