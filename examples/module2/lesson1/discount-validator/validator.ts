@@ -17,5 +17,17 @@ export function formValidator(
     errors.push('Age must be a positive number');
   }
 
+  if (firstName.length < 2) {
+    errors.push('First name must be at least 2 character');
+  }
+
+  if (lastName.length < 2) {
+    errors.push('Last name must be at least 2 character');
+  }
+  
+  if (isNaN(age)) {
+    throw new Error('Age must be a number');
+  }
+
   return errors;
 }
