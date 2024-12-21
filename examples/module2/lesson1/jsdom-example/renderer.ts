@@ -20,7 +20,7 @@ export function renderItems(container: HTMLElement, users: User[]): void {
       ${allowedUsers
         .map(
           (user) =>
-            `<li>${user.role === 'admin' && '(Admin)'} Name: ${
+            `<li data-id=${user.id}>${user.role === 'admin' ? '(Admin) ' : ''}Name: ${
               user.name
             }, Age: ${user.age}</li>`
         )
