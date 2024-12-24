@@ -50,6 +50,7 @@ export const test = baseTest.extend<object, { workerStorageState: string }>({
       // Czasami proces logowania może składać się z kilku redirectów,
       // stąd warto zaczekać na finalny URL, aby mieć pewność że mamy wszystkie cookiesy.
       const mainPage = new MainPage(page);
+      await page.waitForURL(URLs.MAIN_PAGE);
       await expect(page).toHaveURL(URLs.MAIN_PAGE);
       await expect(mainPage.getNavigation()).toContainText(account.username, {
         ignoreCase: true,
