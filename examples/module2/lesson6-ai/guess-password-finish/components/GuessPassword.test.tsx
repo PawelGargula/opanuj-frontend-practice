@@ -170,4 +170,30 @@ describe('(GPT-4) GuessPassword', () => {
 
     expect(screen.queryAllByText(/niepoprawne hasło/i).length).toBe(1);
   });
+
+  it('handles form submission with Enter key', async () => {
+    const passwordInput = screen.getByPlaceholderText(/wpisz hasło.../i);
+    await userEvent.type(passwordInput, 'pickle rick{enter}');
+    expect(window.alert).toHaveBeenCalledWith('Brawo! Zgadłeś hasło.');
+  });
+
+  it('preserves input value after failed submission', async () => {
+    const passwordInput = screen.getByPlaceholderText(/wpisz hasło.../i);
+    await userEvent.type(passwordInput, 'wrong password');
+    await userEvent.click(screen.getByText(/zgadnij/i));
+    expect(passwordInput).toHaveValue('wrong password');
+  });
+
+  it('handles consecutive successful submissions', async () => {
+    const passwordInput = screen.getByPlaceholderText(/wpisz hasło.../i);
+    const submitButton = screen.getByRole('button', { name: /zgadnij/i });
+
+    await userEvent.type(passwordInput, 'pickle rick');
+    await userEvent.click(submitButton);
+    await userEvent.clear(passwordInput);
+    await userEvent.type(passwordInput, 'pickle rick');
+    await userEvent.click(submitButton);
+
+    expect(window.alert).toHaveBeenCalledTimes(2);
+  });
 });
