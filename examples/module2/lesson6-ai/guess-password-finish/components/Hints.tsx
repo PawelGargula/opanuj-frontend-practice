@@ -18,10 +18,11 @@ export const Hints = () => {
   return (
     <div>
       Masz problem ze zgadnięciem hasła? Skorzystaj z podpowiedzi.
-      <div className="text-green-500 mt-1 h-6" data-testid="hint-text">
+      <div aria-labelledby='show-next-hint' aria-live='polite' className="text-green-500 mt-1 h-6" data-testid="hint-text">
         {currentHintIndex !== -1 ? `${hints[currentHintIndex]}` : ''}
       </div>
       <button
+        id='show-next-hint'
         onClick={showNextHint}
         className="mt-2 bg-violet-600 text-white p-2 rounded hover:bg-violet-700"
       >

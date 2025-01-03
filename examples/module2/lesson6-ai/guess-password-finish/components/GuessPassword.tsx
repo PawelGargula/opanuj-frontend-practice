@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { type FormEvent, useState } from 'react';
 import { z } from 'zod';
 
 const passwordSchema = z
@@ -16,12 +16,12 @@ export const GuessPassword = () => {
   const handleGuess = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      passwordSchema.parse(password);
       setPasswordError('');
+      passwordSchema.parse(password);
       alert('Brawo! Zgadłeś hasło.');
     } catch (error) {
       if (error instanceof z.ZodError) {
-        setPasswordError(error.errors[0].message);
+        setTimeout(() => setPasswordError(error.errors[0].message), 0);
       }
     }
   };
@@ -34,6 +34,7 @@ export const GuessPassword = () => {
     >
       <div className="flex flex-col">
         <input
+          aria-label='Hasło'
           id="password"
           name="password"
           type="text"
@@ -49,7 +50,7 @@ export const GuessPassword = () => {
       >
         Zgadnij
       </button>
-      {<div className="text-red-500 h-6">{passwordError}</div>}
+      {<div aria-live='polite' className="text-red-400 h-6">{passwordError}</div>}
     </form>
   );
 };

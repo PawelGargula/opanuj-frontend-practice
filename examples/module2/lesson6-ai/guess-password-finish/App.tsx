@@ -6,7 +6,7 @@ import PasswordHintImage from './components/PasswordHintImage';
 
 function App() {
   return (
-    <div className="h-screen flex ">
+    <main className="h-screen flex ">
       <div className="w-1/2 flex items-center justify-center">
         <div className="w-128">
           <GameIntro />
@@ -17,7 +17,7 @@ function App() {
         </div>
       </div>
       <PasswordHintImage />
-    </div>
+    </main>
   );
 }
 
