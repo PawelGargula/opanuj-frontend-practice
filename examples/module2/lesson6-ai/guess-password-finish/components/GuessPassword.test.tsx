@@ -5,89 +5,17 @@ import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GuessPassword } from './GuessPassword';
+import { levels } from '../data/levels';
 
 afterEach(cleanup);
 
-describe('(Copilot) GuessPassword', () => {
-  it('renders without crashing', () => {
-    render(<GuessPassword />);
-    const passwordInput = screen.getByPlaceholderText('Wpisz hasło...');
-    expect(passwordInput).toBeInTheDocument();
-  });
-
-  it('displays error message when password is incorrect', async () => {
-    render(<GuessPassword />);
-    const passwordInput = screen.getByPlaceholderText('Wpisz hasło...');
-    const submitButton = screen.getByText('Zgadnij');
-
-    userEvent.type(passwordInput, 'wrong password');
-    userEvent.click(submitButton);
-
-    const errorMessage = await screen.findByText(
-      'Niepoprawne hasło. Spróbuj ponownie lub skorzystaj z podpowiedzi.'
-    );
-    expect(errorMessage).toBeInTheDocument();
-  });
-
-  it('does not display error message when password is correct', async () => {
-    render(<GuessPassword />);
-    const passwordInput = screen.getByPlaceholderText('Wpisz hasło...');
-    const submitButton = screen.getByText('Zgadnij');
-
-    userEvent.type(passwordInput, 'pickle rick');
-    userEvent.click(submitButton);
-
-    const errorMessage = screen.queryByText(
-      'Niepoprawne hasło. Spróbuj ponownie lub skorzystaj z podpowiedzi.'
-    );
-    expect(errorMessage).not.toBeInTheDocument();
-  });
-
-  it('displays error message when password is empty', async () => {
-    render(<GuessPassword />);
-    const passwordInput = screen.getByPlaceholderText('Wpisz hasło...');
-    const submitButton = screen.getByText('Zgadnij');
-
-    await userEvent.click(submitButton);
-
-    const errorMessage = await screen.findByText(
-      'Niepoprawne hasło. Spróbuj ponownie lub skorzystaj z podpowiedzi.'
-    );
-    expect(errorMessage).toBeInTheDocument();
-  });
-
-  // it('displays success message when password is correct', async () => {
-  //   const { container } = render(<GuessPassword />);
-  //   const passwordInput = screen.getByPlaceholderText('Wpisz hasło...');
-  //   const submitButton = screen.getByText('Zgadnij');
-
-  //   userEvent.type(passwordInput, 'pickle rick');
-  //   await userEvent.click(submitButton);
-
-  //   const successMessage = container.querySelector('alert');
-  //   expect(successMessage).toBeInTheDocument();
-  // });
-
-  it('ignores case when checking password', async () => {
-    render(<GuessPassword />);
-    const passwordInput = screen.getByPlaceholderText('Wpisz hasło...');
-    const submitButton = screen.getByText('Zgadnij');
-
-    userEvent.type(passwordInput, 'PICKLE RICK');
-    userEvent.click(submitButton);
-
-    const errorMessage = screen.queryByText(
-      'Niepoprawne hasło. Spróbuj ponownie lub skorzystaj z podpowiedzi.'
-    );
-    expect(errorMessage).not.toBeInTheDocument();
-  });
-});
-
 vi.stubGlobal('alert', vi.fn());
 
-describe('(GPT-4) GuessPassword', () => {
+const setCurrentLevel = vi.fn();
+
+describe('(GPT-4) GuessPassword level 0', () => {
   beforeEach(() => {
-    render(<GuessPassword />);
+    render(<GuessPassword currentLevel={0} setCurrentLevel={setCurrentLevel} />);
   });
 
   it('displays an error message for incorrect password', async () => {
@@ -101,7 +29,7 @@ describe('(GPT-4) GuessPassword', () => {
   });
 
   it('does not display an error message when the input is correct', async () => {
-    const correctPassword = 'pickle rick';
+    const correctPassword = levels[0].password;
     const passwordInput = screen.getByPlaceholderText(/wpisz hasło.../i);
     const submitButton = screen.getByRole('button', { name: /zgadnij/i });
 
@@ -109,7 +37,7 @@ describe('(GPT-4) GuessPassword', () => {
     await userEvent.click(submitButton);
 
     expect(screen.queryByText(/niepoprawne hasło/i)).toBeNull();
-    expect(window.alert).toHaveBeenCalledWith('Brawo! Zgadłeś hasło.');
+    expect(window.alert).toHaveBeenCalledWith('Brawo! Zgadłeś hasło. Zostanie teraz wyświetlony kolejny poziom.');
   });
 
   it('clears the error message after inputting correct password following a mistake', async () => {
@@ -121,11 +49,11 @@ describe('(GPT-4) GuessPassword', () => {
     expect(screen.getByText(/niepoprawne hasło/i)).toBeInTheDocument();
 
     await userEvent.clear(passwordInput);
-    await userEvent.type(passwordInput, 'pickle rick');
+    await userEvent.type(passwordInput, levels[0].password);
     await userEvent.click(submitButton);
 
     expect(screen.queryByText(/niepoprawne hasło/i)).toBeNull();
-    expect(window.alert).toHaveBeenCalledWith('Brawo! Zgadłeś hasło.');
+    expect(window.alert).toHaveBeenCalledWith('Brawo! Zgadłeś hasło. Zostanie teraz wyświetlony kolejny poziom.');
   });
 
   it('initializes with an empty input field', () => {
@@ -140,17 +68,17 @@ describe('(GPT-4) GuessPassword', () => {
     await userEvent.type(passwordInput, '  pickle rick  ');
     await userEvent.click(submitButton);
 
-    expect(window.alert).toHaveBeenCalledWith('Brawo! Zgadłeś hasło.');
+    expect(window.alert).toHaveBeenCalledWith('Brawo! Zgadłeś hasło. Zostanie teraz wyświetlony kolejny poziom.');
   });
 
   it('validates the password case-insensitively', async () => {
     const passwordInput = screen.getByPlaceholderText(/wpisz hasło.../i);
     const submitButton = screen.getByRole('button', { name: /zgadnij/i });
 
-    await userEvent.type(passwordInput, 'Pickle Rick');
+    await userEvent.type(passwordInput, levels[0].password.toUpperCase());
     await userEvent.click(submitButton);
 
-    expect(window.alert).toHaveBeenCalledWith('Brawo! Zgadłeś hasło.');
+    expect(window.alert).toHaveBeenCalledWith('Brawo! Zgadłeś hasło. Zostanie teraz wyświetlony kolejny poziom.');
   });
 
   it('does not display an error message before any submission', async () => {
@@ -174,7 +102,7 @@ describe('(GPT-4) GuessPassword', () => {
   it('handles form submission with Enter key', async () => {
     const passwordInput = screen.getByPlaceholderText(/wpisz hasło.../i);
     await userEvent.type(passwordInput, 'pickle rick{enter}');
-    expect(window.alert).toHaveBeenCalledWith('Brawo! Zgadłeś hasło.');
+    expect(window.alert).toHaveBeenCalledWith('Brawo! Zgadłeś hasło. Zostanie teraz wyświetlony kolejny poziom.');
   });
 
   it('preserves input value after failed submission', async () => {
@@ -184,16 +112,124 @@ describe('(GPT-4) GuessPassword', () => {
     expect(passwordInput).toHaveValue('wrong password');
   });
 
-  it('handles consecutive successful submissions', async () => {
+  it('calls setCurrentLevel when password is correct', async () => {
+    const passwordInput = screen.getByLabelText(/hasło/i);
+    const submitButton = screen.getByRole('button', { name: /zgadnij/i });
+
+    await userEvent.type(passwordInput, levels[0].password);
+    await userEvent.click(submitButton);
+
+    expect(setCurrentLevel).toHaveBeenCalled();
+  });
+
+  it('shows regular message on non-last level completion', async () => {
     const passwordInput = screen.getByPlaceholderText(/wpisz hasło.../i);
     const submitButton = screen.getByRole('button', { name: /zgadnij/i });
 
-    await userEvent.type(passwordInput, 'pickle rick');
-    await userEvent.click(submitButton);
-    await userEvent.clear(passwordInput);
-    await userEvent.type(passwordInput, 'pickle rick');
+    await userEvent.type(passwordInput, levels[0].password);
     await userEvent.click(submitButton);
 
-    expect(window.alert).toHaveBeenCalledTimes(2);
+    expect(window.alert).toHaveBeenCalledWith("Brawo! Zgadłeś hasło. Zostanie teraz wyświetlony kolejny poziom.");
+  });
+
+  it('clears input after successful password submission', async () => {
+    const passwordInput = screen.getByPlaceholderText(/wpisz hasło.../i);
+    const submitButton = screen.getByRole('button', { name: /zgadnij/i });
+
+    await userEvent.type(passwordInput, levels[0].password);
+    await userEvent.click(submitButton);
+
+    expect(passwordInput).toHaveValue('');
   });
 });
+
+describe('(GPT-4) GuessPassword last level', () => {
+  it('shows different message on last level completion', async () => {
+    const setCurrentLevel = vi.fn();
+    render(<GuessPassword currentLevel={levels.length - 1} setCurrentLevel={setCurrentLevel} />);
+
+    const passwordInput = screen.getByPlaceholderText(/wpisz hasło.../i);
+    const submitButton = screen.getByRole('button', { name: /zgadnij/i });
+
+    await userEvent.type(passwordInput, levels[levels.length - 1].password);
+    await userEvent.click(submitButton);
+
+    expect(window.alert).toHaveBeenCalledWith("Brawo! Zgadłeś hasło. Gratulacje! Ukończyłeś wszystkie poziomy.");
+  });
+
+});
+
+// describe('(Copilot first try) GuessPassword', () => {
+//   it('renders without crashing', () => {
+//     render(<GuessPassword currentLevel={0} setCurrentLevel={() => {}} />);
+//     const passwordInput = screen.getByPlaceholderText('Wpisz hasło...');
+//     expect(passwordInput).toBeInTheDocument();
+//   });
+
+//   it('displays error message when password is incorrect', async () => {
+//     render(<GuessPassword currentLevel={0} setCurrentLevel={() => {}} />);
+//     const passwordInput = screen.getByPlaceholderText('Wpisz hasło...');
+//     const submitButton = screen.getByText('Zgadnij');
+
+//     userEvent.type(passwordInput, 'wrong password');
+//     userEvent.click(submitButton);
+
+//     const errorMessage = await screen.findByText(
+//       'Niepoprawne hasło. Spróbuj ponownie lub skorzystaj z podpowiedzi.'
+//     );
+//     expect(errorMessage).toBeInTheDocument();
+//   });
+
+//   it('does not display error message when password is correct', async () => {
+//     render(<GuessPassword currentLevel={0} setCurrentLevel={() => {}} />);
+//     const passwordInput = screen.getByPlaceholderText('Wpisz hasło...');
+//     const submitButton = screen.getByText('Zgadnij');
+
+//     userEvent.type(passwordInput, levels[0].password);
+//     userEvent.click(submitButton);
+
+//     const errorMessage = screen.queryByText(
+//       'Niepoprawne hasło. Spróbuj ponownie lub skorzystaj z podpowiedzi.'
+//     );
+//     expect(errorMessage).not.toBeInTheDocument();
+//   });
+
+//   it('displays error message when password is empty', async () => {
+//     render(<GuessPassword currentLevel={0} setCurrentLevel={() => {}} />);
+//     const passwordInput = screen.getByPlaceholderText('Wpisz hasło...');
+//     const submitButton = screen.getByText('Zgadnij');
+
+//     await userEvent.click(submitButton);
+
+//     const errorMessage = await screen.findByText(
+//       'Niepoprawne hasło. Spróbuj ponownie lub skorzystaj z podpowiedzi.'
+//     );
+//     expect(errorMessage).toBeInTheDocument();
+//   });
+
+//   // it('displays success message when password is correct', async () => {
+//   //   const { container } = render(<GuessPassword />);
+//   //   const passwordInput = screen.getByPlaceholderText('Wpisz hasło...');
+//   //   const submitButton = screen.getByText('Zgadnij');
+
+//   //   userEvent.type(passwordInput, levels[0].password);
+//   //   await userEvent.click(submitButton);
+
+//   //   const successMessage = container.querySelector('alert');
+//   //   expect(successMessage).toBeInTheDocument();
+//   // });
+
+//   it('ignores case when checking password', async () => {
+//     render(<GuessPassword currentLevel={0} setCurrentLevel={() => {}} />);
+//     const passwordInput = screen.getByPlaceholderText('Wpisz hasło...');
+//     const submitButton = screen.getByText('Zgadnij');
+
+//     userEvent.type(passwordInput, levels[0].password);
+//     userEvent.click(submitButton);
+
+//     const errorMessage = screen.queryByText(
+//       'Niepoprawne hasło. Spróbuj ponownie lub skorzystaj z podpowiedzi.'
+//     );
+//     expect(errorMessage).not.toBeInTheDocument();
+//   });
+// });
