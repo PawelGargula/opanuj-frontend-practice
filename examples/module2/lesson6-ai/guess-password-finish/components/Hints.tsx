@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getLevel } from '../data/levels';
 
-export const Hints = () => {
-  const hints = [
-    'Ogórek i Rick połączeni w jedno',
-    'Hasło to dwa słowa, drugie to imię',
-    'Ogórek po angielsku to Pickle',
-  ];
+export const Hints = ({ currentLevel }: { currentLevel: number }) => {
+  const level = getLevel(currentLevel);
+  const hints = level.hints;
 
   const [currentHintIndex, setCurrentHintIndex] = useState(-1);
+
+  // Reset hints when level changes
+  useEffect(() => {
+    setCurrentHintIndex(-1);
+  }, [currentLevel]);
 
   const showNextHint = () => {
     setCurrentHintIndex((prevHintIndex) =>
@@ -22,7 +25,7 @@ export const Hints = () => {
         {currentHintIndex !== -1 ? `${hints[currentHintIndex]}` : ''}
       </div>
       <button
-        id='show-next-hint'
+        id='show-next-</div>hint'
         onClick={showNextHint}
         className="mt-2 bg-violet-600 text-white p-2 rounded hover:bg-violet-700"
       >

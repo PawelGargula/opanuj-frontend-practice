@@ -1,15 +1,25 @@
 import { type FormEvent, useState } from 'react';
 import { z } from 'zod';
+import { getLevel } from '../data/levels';
+import { levels } from '../data/levels';
 
-const passwordSchema = z
-  .string()
-  .transform((val) => val.trim())
-  .refine((val) => val.toLowerCase() === 'pickle rick', {
-    message:
-      'Niepoprawne hasło. Spróbuj ponownie lub skorzystaj z podpowiedzi.',
-  });
+export const GuessPassword = ({ 
+  currentLevel, 
+  setCurrentLevel 
+}: { 
+  currentLevel: number,
+  setCurrentLevel: React.Dispatch<React.SetStateAction<number>>
+}) => {
+  const level = getLevel(currentLevel);
 
-export const GuessPassword = () => {
+  const passwordSchema = z
+    .string()
+    .transform((val) => val.trim())
+    .refine((val) => val.toLowerCase() === level.password, {
+      message:
+        'Niepoprawne hasło. Spróbuj ponownie lub skorzystaj z podpowiedzi.',
+    });
+
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
@@ -18,7 +28,13 @@ export const GuessPassword = () => {
     try {
       setPasswordError('');
       passwordSchema.parse(password);
-      alert('Brawo! Zgadłeś hasło.');
+
+      const message = currentLevel === levels.length - 1 
+        ? "Brawo! Zgadłeś hasło. Gratulacje! Ukończyłeś wszystkie poziomy."
+        : "Brawo! Zgadłeś hasło. Zostanie teraz wyświetlony kolejny poziom.";
+      alert(message);
+      setPassword('');
+      setCurrentLevel((prev) => prev + 1);
     } catch (error) {
       if (error instanceof z.ZodError) {
         setTimeout(() => setPasswordError(error.errors[0].message), 0);
