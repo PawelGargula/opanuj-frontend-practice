@@ -66,7 +66,7 @@ export const GuessPassword = ({
       >
         Zgadnij
       </button>
-      {<div aria-live='polite' className="text-red-400 h-6">{passwordError}</div>}
+      {<div data-testid="password-error" aria-live='polite' className="text-red-400 h-6">{passwordError}</div>}
     </form>
   );
 };
