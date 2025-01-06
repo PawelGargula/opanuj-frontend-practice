@@ -2,13 +2,14 @@ import { TopNavigation } from '../../../components/top-navigation.component';
 import { expect, test } from '../../../fixtures';
 import { ArticlePage } from '../../../pages/article.page';
 import { MainPage } from '../../../pages/main.page';
+import searchedArticles from './searched-articles.json';
 
 test('Search for first article', async ({ page }) => {
     const SEARCHING_TERM = 'playwright';
 
     // Mock search results
     await page.route('https://en.wikipedia.org/w/rest.php/v1/search/title?q=playwright&limit=10', async (route) => {
-        await route.fulfill({ json: require('./searched-articles.json') })
+        await route.fulfill({ json: searchedArticles })
     });
 
     // Mock article page navigation
